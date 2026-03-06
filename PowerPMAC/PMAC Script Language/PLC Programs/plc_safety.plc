@@ -5,26 +5,18 @@ local pos_min1 = 55000;     // 电机 1 最小位置 [cite: 5, 6]
 local pos_max1 = 963200;    // 电机 1 最大位置 [cite: 6]
 local pos_min2 = 0;         // 电机 2 最小位置 [cite: 6]
 local pos_max2 = 131072;    // 电机 2 最大位置 (pow(2,17)) [cite: 6]
-// TODO: 如果有电机 3 和 4 的限位，后续加在这里
-
-// 2. 实时读取当前编码器真实位置
-local current_pos1 = Motor[1].Pos; // [cite: 7]
-local current_pos2 = Motor[2].Pos; // [cite: 7]
-
-// 3. 电机 1 安全干预逻辑
-if (current_pos1 > pos_max1 || current_pos1 < pos_min1) {
-    // cmd"#1k"; // 第一时间切断电机 1 动力 (Kill) [cite: 9]
+local pos_min5 = -600000;        
+local pos_max5 = 600000;    
+local min_limit = -600000;
+local safe_min  = -610000; // 稍微往回退一点
     
-    // 强制将电机退回安全区间内 (软恢复)
-    if (current_pos1 > pos_max1) {
-       // cmd"#1j=960000"; // [cite: 9, 10]
-       // call wait(2);
-    }
-    if (current_pos1 < pos_min1) {
-       // cmd"#1j=56000";  // [cite: 10]
-        //call wait(2);
-    }
-}
+local max_limit = 600000;
+local safe_max  = 610000;
+//call MotorSafetyCheck(1, Motor[1].Pos, min_limit, max_limit, safe_min, safe_max);
+//call MotorSafetyCheck(2, Motor[2].Pos, 0, 131072, 1000, 130000); // 电机2的独立参数
+//call MotorSafetyCheck(3, Motor[3].Pos, min_limit, max_limit, safe_min, safe_max);
+//call MotorSafetyCheck(4, Motor[4].Pos, min_limit, max_limit, safe_min, safe_max);
+call MotorSafetyCheck(5, Motor[5].Pos, min_limit, max_limit, safe_min, safe_max);
 
 
 close
