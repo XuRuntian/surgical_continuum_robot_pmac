@@ -1,0 +1,35 @@
+open plc 2 
+// ------------------------------------------
+// 读取 Modbus Buffer 并计算出 32 位目标位置
+
+// 重新拼接
+call ModbusCodec.Decode(0);  P101 = P1001;
+call ModbusCodec.Decode(4);  P102 = P1001;
+call ModbusCodec.Decode(8);  P103 = P1001;
+call ModbusCodec.Decode(12);  P104 = P1001;
+call ModbusCodec.Decode(16);  P105 = P1001;
+
+local is_safe = 1;
+
+// 指令级安全预过滤 
+//if (target_pos1 > 963200 || target_pos1 < 55000) { is_safe = 0; }
+//if (target_pos2 > 131072 || target_pos2 < 0) { is_safe = 0; }
+// TODO: 添加电机 3、4、5 的安全过滤
+// 如果指令安全，则驱动电机
+if (is_safe == 1) {
+    // 【修正点 1】：将算好的目标值赋给 P 变量，供 cmd 调用
+    // 使用点动指令让电机趋近目标位置
+    //cmd"#1 j=P101 #2 j=P102 #3 j=P103 #4 j=P104 #5 j=P105"
+}
+
+// ------------------------------------------
+// [后半部分]: 反馈实际位置给 PC (PMAC -> PC)
+// ------------------------------------------
+
+call ModbusCodec.Encode(Motor[1].Pos, 20);
+call ModbusCodec.Encode(Motor[2].Pos, 24);
+call ModbusCodec.Encode(Motor[3].Pos, 28);
+call ModbusCodec.Encode(Motor[4].Pos, 32);
+call ModbusCodec.Encode(Motor[5].Pos, 36);
+P106 += 1 //检测程序是否运行
+close

@@ -1,0 +1,37 @@
+ECAT[0].IO[3].Data = 8
+ECAT[0].IO[7].Data = 8
+ECAT[0].IO[11].Data = 8
+ECAT[0].IO[15].Data = 8
+ECAT[0].IO[19].Data = 8
+
+//最大速度设置 ct/ms
+Motor[1].MaxSpeed=2500
+Motor[2].MaxSpeed=2500
+Motor[3].MaxSpeed=2500
+Motor[4].MaxSpeed=2500
+//最大加速度设置，注意是倒数ms^2/ct
+Motor[1].InvAmax=0.01
+Motor[2].InvAmax=0.01
+Motor[3].InvAmax=0.01
+Motor[4].InvAmax=0.01
+//最大减速度设置ms^2/ct
+Motor[1].InvDmax=0.01
+Motor[2].InvDmax=0.01
+Motor[3].InvDmax=0.01
+Motor[4].InvDmax=0.01
+//最大加加速度设置ms^3/ct
+Motor[1].InvDmax=0.05
+Motor[2].InvDmax=0.05
+Motor[3].InvDmax=0.05
+Motor[4].InvJmax=0.05
+
+// 直线单元限制
+Motor[5].JogTa = 20
+Motor[5].JogSpeed = 200
+
+// 
+global target_pos1
+global target_pos2
+global target_pos3
+global target_pos4
+global target_pos5

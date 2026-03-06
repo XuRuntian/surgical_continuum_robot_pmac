@@ -1,0 +1,30 @@
+open plc 1 // 限位
+
+// 1. 提取前人积累的电机物理安全极限
+local pos_min1 = 55000;     // 电机 1 最小位置 [cite: 5, 6]
+local pos_max1 = 963200;    // 电机 1 最大位置 [cite: 6]
+local pos_min2 = 0;         // 电机 2 最小位置 [cite: 6]
+local pos_max2 = 131072;    // 电机 2 最大位置 (pow(2,17)) [cite: 6]
+// TODO: 如果有电机 3 和 4 的限位，后续加在这里
+
+// 2. 实时读取当前编码器真实位置
+local current_pos1 = Motor[1].Pos; // [cite: 7]
+local current_pos2 = Motor[2].Pos; // [cite: 7]
+
+// 3. 电机 1 安全干预逻辑
+if (current_pos1 > pos_max1 || current_pos1 < pos_min1) {
+    // cmd"#1k"; // 第一时间切断电机 1 动力 (Kill) [cite: 9]
+    
+    // 强制将电机退回安全区间内 (软恢复)
+    if (current_pos1 > pos_max1) {
+       // cmd"#1j=960000"; // [cite: 9, 10]
+       // call wait(2);
+    }
+    if (current_pos1 < pos_min1) {
+       // cmd"#1j=56000";  // [cite: 10]
+        //call wait(2);
+    }
+}
+
+
+close

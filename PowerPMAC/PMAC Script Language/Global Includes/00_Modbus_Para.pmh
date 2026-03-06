@@ -1,0 +1,12 @@
+Modbus[0].Config.ServerPort = 0 //置0表示使用默认端口502 
+Modbus[0].Config.ConnectTimeOut = 6000  //设置连接超时时间
+Modbus[0].Config.SendRecvTimeOut = 0   //设置数据发送和接收的超时时间0表示没有超时限制。
+
+//Modbus[0].Config.UnitID = 4 //与Modbus消息一起发送的单元ID，如果Modbus设备只有一个，可不用	
+										
+Modbus[0].Config.ServerIpAddr[0]=192
+Modbus[0].Config.ServerIpAddr[1]=168
+Modbus[0].Config.ServerIpAddr[2]=0
+Modbus[0].Config.ServerIpAddr[3]=200
+//设置地址192.168.0.200（如果你的 Modbus 服务器和客户端不在同一台计算机上，而是分别位于不同的设备），本地调试可使用本地回环地址（localhost）127.0.0.1
+Sys.ModbusServerEnable = 1 //使能modbus服务器

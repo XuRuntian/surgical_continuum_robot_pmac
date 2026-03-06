@@ -1,0 +1,39 @@
+/* 具身智能数据处理子程序：处理 8-bit Buffer 与 32-bit Position 的转换 */
+open subprog ModbusCodec
+
+// --- 标签1: 解码 (Buffer -> 32位整数) ---
+// 调用示例: call ModbusCodec.Decode(0); // 处理 Buffer[0..3]
+// 结果存储在全局变量 P1001 中 (PMAC 子程序返回值通常需指定全局变量)
+sub: Decode(BaseIdx)
+    local b0, b1, b2, b3;
+    
+    // 强制转无符号并按位权重拼接
+    b0 = Sys.ModbusServerBuffer[BaseIdx]     & 255;
+	BaseIdx = BaseIdx + 1
+    b1 = Sys.ModbusServerBuffer[BaseIdx] & 255;
+	BaseIdx = BaseIdx + 1
+    b2 = Sys.ModbusServerBuffer[BaseIdx] & 255;
+	BaseIdx = BaseIdx + 1
+    b3 = Sys.ModbusServerBuffer[BaseIdx] & 255;
+    
+    // 返回到全局 P 变量，方便 PLC 读取
+    P1001 = b0 + (b1 * 256) + (b2 * 65536) + (b3 * 16777216);
+return
+
+// --- 标签2: 编码 (32位整数 -> Buffer) ---
+// 调用示例: call ModbusCodec.Encode(Motor[1].Pos, 20); // 存入 Buffer[20..23]
+sub: Encode(Value32, TargetIdx)
+    local v_int;
+    v_int = floor(Value32); // 确保是整数
+    
+    // 拆分为 4 个 8-bit 字节写入 Buffer
+    Sys.ModbusServerBuffer[TargetIdx]     = v_int & 255;
+	TargetIdx = TargetIdx + 1
+    Sys.ModbusServerBuffer[TargetIdx] = floor(v_int / 256) & 255;
+	TargetIdx = TargetIdx + 1
+    Sys.ModbusServerBuffer[TargetIdx] = floor(v_int / 65536) & 255;
+	TargetIdx = TargetIdx + 1
+    Sys.ModbusServerBuffer[TargetIdx] = floor(v_int / 16777216) & 255;
+return
+
+close

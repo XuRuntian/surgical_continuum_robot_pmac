@@ -1,0 +1,5 @@
+SUBPROG	wait	100000	1	0	1	1
+SUB	sec	10000	1	0	1	1
+SUB	msec	10001	1	0	1	1
+SUB	Decode	10000	1	0	1	1
+SUB	Encode	10001	2	0	1	1	1	1	1

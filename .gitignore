@@ -1,0 +1,12 @@
+# 排除 PowerPMAC 自动生成的日志和调试文件
+*.Log
+*.log
+*_pp_debug.txt
+**/Temp/
+**/Bin/
+**/Log/
+**/obj/
+# 排除 Visual Studio 临时文件
+.vs/
+*.user
+*.suo
