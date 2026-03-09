@@ -11,9 +11,9 @@ Linear       // 开启线性插补模式 (多轴同启同停)
 Abs          // 绝对位置模式 (配合你计算出的绝对脉冲)
 Ta 100       // 加速时间 100 毫秒 (平滑防抖)
 Ts 50        // S型曲线平滑时间 50 毫秒 (保护腱绳)
-F 5000       // 进给速度 (单位根据你的细分设定，可调)
+tm 500
 
 // 执行多轴协同移动到 PLC 算好的 P 变量位置
-A(P101) B(P102) C(P103) U(P104) V(P105)
+A (target_pos1) B (target_pos2) C (target_pos3) U (target_pos4) V (target_pos5)
 close
 
