@@ -9,9 +9,9 @@ open prog 1
 // --------------------User Code Goes Here------------------------
 Linear       // 开启线性插补模式 (多轴同启同停)
 Abs          // 绝对位置模式 (配合你计算出的绝对脉冲)
-Ta 100       // 加速时间 100 毫秒 (平滑防抖)
-Ts 50        // S型曲线平滑时间 50 毫秒 (保护腱绳)
-tm 500
+Ta (target_accel_time)   // 动态加速时间
+Ts (target_scurve_time)  // 动态S型平滑时间
+tm (target_move_time)    // 动态总运动时间
 
 // 执行多轴协同移动到 PLC 算好的 P 变量位置
 A (target_pos1) B (target_pos2) C (target_pos3) U (target_pos4) V (target_pos5)

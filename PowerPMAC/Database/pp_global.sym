@@ -53,3 +53,6 @@
 53	Global	target_pos3	8194	1
 54	Global	target_pos4	8195	1
 55	Global	target_pos5	8196	1
+56	Global	target_move_time	8197	1
+57	Global	target_accel_time	8198	1
+58	Global	target_scurve_time	8199	1

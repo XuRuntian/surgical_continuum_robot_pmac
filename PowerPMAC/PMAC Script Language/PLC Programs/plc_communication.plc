@@ -2,19 +2,39 @@ open plc 2
 // ------------------------------------------
 // 读取 Modbus Buffer 并计算出 32 位目标位置
 
-// 重新拼接
+// 1. 读取位置指令
 call ModbusCodec.Decode(0);  P101 = P1001;
 call ModbusCodec.Decode(4);  P102 = P1001;
 call ModbusCodec.Decode(8);  P103 = P1001;
 call ModbusCodec.Decode(12);  P104 = P1001;
 call ModbusCodec.Decode(16);  P105 = P1001;
+
+// 2. 读取动态速度/时间指令 (假设地址设在 40 和 44)
+call ModbusCodec.Decode(40);  target_move_time = P1001; 
+call ModbusCodec.Decode(44);  target_accel_time = P1001;
+call ModbusCodec.Decode(48);  target_scurve_time = P1001;
+// 3. 读取触发位
 call ModbusCodec.Decode(200); P123 = P1001;
+
 local is_safe = 1;
 target_pos1 = P101
 target_pos2 = P102
 target_pos3 = P103
 target_pos4 = P104
 target_pos5 = P105
+
+// 如果上位机还没初始化发数据，或者发了0，强制使用安全平滑的默认值
+if (target_move_time <= 0) { 
+    target_move_time = 500;  // 默认移动时间 500ms
+}
+// 防止加速时间超过总移动时间导致逻辑冲突，也可做个上限限制
+if (target_accel_time <= 0 || target_accel_time > target_move_time) { 
+    target_accel_time = 100; // 默认加速时间 100ms
+}
+// S曲线时间不能大于加速时间
+if (target_scurve_time <= 0 || target_scurve_time > target_accel_time) { 
+    target_scurve_time = 50; // 默认平滑时间 50ms
+}
 
 // 指令级安全预过滤 
 //if (target_pos1 > 963200 || target_pos1 < 55000) { is_safe = 0; }
@@ -24,8 +44,6 @@ target_pos5 = P105
 
 if (P123 == 1) {
 	cmd"&1 b1 r"
-    //cmd"#1j=%d/ #2j=%d/ #3j=%d/ #4j=%d/ #5j=%d/", P101, P102, P103, P104, P105
-	P106 += 1 //检测程序是否运行
     P123 = 0;
 
 }
