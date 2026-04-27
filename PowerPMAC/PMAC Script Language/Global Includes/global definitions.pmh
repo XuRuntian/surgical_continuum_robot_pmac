@@ -40,3 +40,5 @@ global target_pos5
 global target_move_time = 100  // 控制走完这段路程需要的时间 (ms)
 global target_accel_time = 100 // 控制加减速的平滑时间 (ms)
 global target_scurve_time = 50// S型曲线平滑时间
+
+global MyInit_Flag = 0

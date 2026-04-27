@@ -28,4 +28,3 @@
 28	SUBPROGMotorSafetyCheck	safe_min	7	1
 29	SUBPROGMotorSafetyCheck	max_limit	8	1
 30	SUBPROGMotorSafetyCheck	safe_max	9	1
-31	SUBPROGMotorSafetyCheck	is_safe	0	1

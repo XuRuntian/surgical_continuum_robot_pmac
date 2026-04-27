@@ -32,6 +32,7 @@ enum ptrMarray {_ptrMarray_=-1};
 #define	target_move_time	pshm->P[8197]
 #define	target_accel_time	pshm->P[8198]
 #define	target_scurve_time	pshm->P[8199]
+#define	MyInit_Flag	pshm->P[8200]
 #ifndef _PP_PROJ_HDR_
   void SetEnumGlobalVar(enum globalP var, double data)
   {
@@ -150,7 +151,8 @@ enum globalP {_globalP_=-1
 ,target_pos5=8196
 ,target_move_time=8197
 ,target_accel_time=8198
-,target_scurve_time=8199};
+,target_scurve_time=8199
+,MyInit_Flag=8200};
 enum globalParray {_globalParray_=-1};
 enum csglobalQ {_csglobalQ_=-1};
 enum csglobalQarray {_csglobalQarray_=-1};
@@ -274,6 +276,7 @@ enum ptrMarray {_ptrMarray_=-1};
 #define target_move_time 8197
 #define target_accel_time 8198
 #define target_scurve_time 8199
+#define MyInit_Flag 8200
 #endif
 #endif
 #endif //_PP_PROJ_H_

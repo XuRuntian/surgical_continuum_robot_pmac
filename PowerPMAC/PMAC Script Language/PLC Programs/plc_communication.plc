@@ -1,60 +1,74 @@
 open plc 2 
-// ------------------------------------------
-// 读取 Modbus Buffer 并计算出 32 位目标位置
+// ---------------------------------------------------------
+// [第一部分]: 初始化逻辑 - 仅在 PLC 启动后的第一个周期执行
+// ---------------------------------------------------------
+if (MyInit_Flag == 0) {
+    // 1. 强制清除运动触发信号，防止开机即动
+    P123 = 0; 
+    
+    // 2. 将目标位置初始化为当前物理位置，消除“数值残余”导致的位移
+    target_pos1 = Motor[1].Pos;
+    target_pos2 = Motor[2].Pos;
+    target_pos3 = Motor[3].Pos;
+    target_pos4 = Motor[4].Pos;
+    target_pos5 = Motor[5].Pos;
+    
+    // 3. 标记初始化完成
+    MyInit_Flag = 1; 
+}
 
-// 1. 读取位置指令
+// ---------------------------------------------------------
+// [第二部分]: 从 Modbus 缓冲区读取上位机指令
+// ---------------------------------------------------------
+
+// 1. 解码 32 位位置指令 (地址 0-19)
 call ModbusCodec.Decode(0);  P101 = P1001;
 call ModbusCodec.Decode(4);  P102 = P1001;
 call ModbusCodec.Decode(8);  P103 = P1001;
-call ModbusCodec.Decode(12);  P104 = P1001;
-call ModbusCodec.Decode(16);  P105 = P1001;
+call ModbusCodec.Decode(12); P104 = P1001;
+call ModbusCodec.Decode(16); P105 = P1001;
 
-// 2. 读取动态速度/时间指令 (假设地址设在 40 和 44)
-call ModbusCodec.Decode(40);  target_move_time = P1001; 
-call ModbusCodec.Decode(44);  target_accel_time = P1001;
-call ModbusCodec.Decode(48);  target_scurve_time = P1001;
-// 3. 读取触发位
+// 2. 解码动态速度/时间参数
+call ModbusCodec.Decode(40); target_move_time = P1001;  
+call ModbusCodec.Decode(44); target_accel_time = P1001;
+call ModbusCodec.Decode(48); target_scurve_time = P1001;
+
+// 3. 解码触发信号 (地址 200)
 call ModbusCodec.Decode(200); P123 = P1001;
 
-local is_safe = 1;
-target_pos1 = P101
-target_pos2 = P102
-target_pos3 = P103
-target_pos4 = P104
-target_pos5 = P105
-
-// 如果上位机还没初始化发数据，或者发了0，强制使用安全平滑的默认值
-if (target_move_time <= 0) { 
-    target_move_time = 500;  // 默认移动时间 500ms
-}
-// 防止加速时间超过总移动时间导致逻辑冲突，也可做个上限限制
-if (target_accel_time <= 0 || target_accel_time > target_move_time) { 
-    target_accel_time = 100; // 默认加速时间 100ms
-}
-// S曲线时间不能大于加速时间
-if (target_scurve_time <= 0 || target_scurve_time > target_accel_time) { 
-    target_scurve_time = 50; // 默认平滑时间 50ms
-}
-
-// 指令级安全预过滤 
-//if (target_pos1 > 963200 || target_pos1 < 55000) { is_safe = 0; }
-//if (target_pos2 > 131072 || target_pos2 < 0) { is_safe = 0; }
-// TODO: 添加电机 3、4、5 的安全过滤
-// 如果指令安全，则驱动电机
-
+// ---------------------------------------------------------
+// [第三部分 & 第四部分合并]: 仅在触发时进行指令赋值、校验与运动
+// ---------------------------------------------------------
 if (P123 == 1) {
-	cmd"&1 b1 r"
-    P123 = 0;
+    // 只有在收到上位机明确的触发信号时，才允许从 Modbus 覆盖目标位置
+    target_pos1 = P101;
+    target_pos2 = P102;
+    target_pos3 = P103;
+    target_pos4 = P104;
+    target_pos5 = P105;
 
+    // 安全保护：如果上位机发送了非法时间参数，强制修正为安全默认值
+    if (target_move_time <= 0) { target_move_time = 500; }
+    if (target_accel_time <= 0 || target_accel_time > target_move_time) { target_accel_time = 100; }
+    if (target_scurve_time <= 0 || target_scurve_time > target_accel_time) { target_scurve_time = 50; }
+
+    // TODO: 在此处根据 plc_safety.plc 的逻辑添加位置限位校验
+    // 示例: if (target_pos1 > 963200 || target_pos1 < 55000) { ...处理越界... }
+
+    // 运行程序 1，执行运动
+    cmd"&1 b1 r" 
+    
+    // 自动复位触发位，等待 Python 端发送下一次运动指令
+    P123 = 0;    
 }
 
-// ------------------------------------------
-// [后半部分]: 反馈实际位置给 PC (PMAC -> PC)
-// ------------------------------------------
-
+// ---------------------------------------------------------
+// [第五部分]: 状态回传 (反馈实际位置给上位机)
+// ---------------------------------------------------------
 call ModbusCodec.Encode(Motor[1].Pos, 20);
 call ModbusCodec.Encode(Motor[2].Pos, 24);
 call ModbusCodec.Encode(Motor[3].Pos, 28);
 call ModbusCodec.Encode(Motor[4].Pos, 32);
 call ModbusCodec.Encode(Motor[5].Pos, 36);
+
 close

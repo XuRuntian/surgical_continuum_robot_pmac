@@ -56,3 +56,4 @@
 56	Global	target_move_time	8197	1
 57	Global	target_accel_time	8198	1
 58	Global	target_scurve_time	8199	1
+59	Global	MyInit_Flag	8200	1
