@@ -1,19 +1,44 @@
-/*For more information see notes.txt in the Documentation folder */
-&1            // 激活 1 号坐标系
-#1->A         // 将 1 号电机映射为 A 轴
-#2->B         // 将 2 号电机映射为 B 轴
-#3->C         // 将 3 号电机映射为 C 轴
-#4->U         // 将 4 号电机映射为 U 轴
-#5->V         // 将 5 号电机映射为 V 轴
+&1 
+#1->X
+#2->Y
+#3->Z
+#4->A
+#5->B
+
 open prog 1
-// --------------------User Code Goes Here------------------------
-Linear       // 开启线性插补模式 (多轴同启同停)
-Abs          // 绝对位置模式 (配合你计算出的绝对脉冲)
-Ta (target_accel_time)   // 动态加速时间
-Ts (target_scurve_time)  // 动态S型平滑时间
-tm (target_move_time)    // 动态总运动时间
+local target_t;
+local p_inc1, p_inc2, p_inc3, p_inc4, p_inc5;
+local r_base; // 读取点位的基础索引
 
-// 执行多轴协同移动到 PLC 算好的 P 变量位置
-A (target_pos1) B (target_pos2) C (target_pos3) U (target_pos4) V (target_pos5)
+abs
+linear
+inc
+
+while (1) {
+    if (PVT_ReadIdx != PVT_WriteIdx) {
+        // 计算当前读取点的起始偏移[cite: 5]
+        r_base = PVT_ReadIdx * 6;
+        
+        target_t = PVT_Time(PVT_ReadIdx);
+        
+        // 使用一维索引读取位置并计算增量[cite: 5]
+        p_inc1 = PVT_Pos(r_base + 1) - Motor[1].Pos;
+        p_inc2 = PVT_Pos(r_base + 2) - Motor[2].Pos;
+        p_inc3 = PVT_Pos(r_base + 3) - Motor[3].Pos;
+        p_inc4 = PVT_Pos(r_base + 4) - Motor[4].Pos;
+        p_inc5 = PVT_Pos(r_base + 5) - Motor[5].Pos;
+
+        PVT (target_t)
+        X (p_inc1):(PVT_Vel(r_base + 1)) Y (p_inc2):(PVT_Vel(r_base + 2)) Z (p_inc3):(PVT_Vel(r_base + 3)) A (p_inc4):(PVT_Vel(r_base + 4)) B (p_inc5):(PVT_Vel(r_base + 5))
+
+        PVT_ReadIdx++;
+        if (PVT_ReadIdx >= PVT_BufferSize) { PVT_ReadIdx = 0; }
+
+        PVT_Count = PVT_WriteIdx - PVT_ReadIdx;
+        if (PVT_Count < 0) { PVT_Count = PVT_Count + PVT_BufferSize; }
+    } else {
+        PVT (10) 
+        X (0):0 Y (0):0 Z (0):0 A (0):0 B (0):0
+    }
+}
 close
-

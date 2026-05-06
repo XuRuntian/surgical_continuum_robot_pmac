@@ -24,15 +24,23 @@ enum csglobalQarray {_csglobalQarray_=-1};
 
 enum ptrM {_ptrM_=-1};
 enum ptrMarray {_ptrMarray_=-1};
-#define	target_pos1	pshm->P[8192]
-#define	target_pos2	pshm->P[8193]
-#define	target_pos3	pshm->P[8194]
-#define	target_pos4	pshm->P[8195]
-#define	target_pos5	pshm->P[8196]
-#define	target_move_time	pshm->P[8197]
-#define	target_accel_time	pshm->P[8198]
-#define	target_scurve_time	pshm->P[8199]
-#define	MyInit_Flag	pshm->P[8200]
+#define	PVT_BufferSize	pshm->P[8192]
+#define	PVT_WriteIdx	pshm->P[8193]
+#define	PVT_ReadIdx	pshm->P[8194]
+#define	PVT_Count	pshm->P[8195]
+#define	PVT_Scale	pshm->P[8196]
+#define	PVT_Time(i)	pshm->P[(8197+i)%MAX_P]
+#define	PVT_Pos(i)	pshm->P[(8297+i)%MAX_P]
+#define	PVT_Vel(i)	pshm->P[(8897+i)%MAX_P]
+#define	target_pos1	pshm->P[9497]
+#define	target_pos2	pshm->P[9498]
+#define	target_pos3	pshm->P[9499]
+#define	target_pos4	pshm->P[9500]
+#define	target_pos5	pshm->P[9501]
+#define	target_move_time	pshm->P[9502]
+#define	target_accel_time	pshm->P[9503]
+#define	target_scurve_time	pshm->P[9504]
+#define	MyInit_Flag	pshm->P[9505]
 #ifndef _PP_PROJ_HDR_
   void SetEnumGlobalVar(enum globalP var, double data)
   {
@@ -144,16 +152,24 @@ enum ptrMarray {_ptrMarray_=-1};
 #else
 #ifdef _EnumMode_
 enum globalP {_globalP_=-1
-,target_pos1=8192
-,target_pos2=8193
-,target_pos3=8194
-,target_pos4=8195
-,target_pos5=8196
-,target_move_time=8197
-,target_accel_time=8198
-,target_scurve_time=8199
-,MyInit_Flag=8200};
-enum globalParray {_globalParray_=-1};
+,PVT_BufferSize=8192
+,PVT_WriteIdx=8193
+,PVT_ReadIdx=8194
+,PVT_Count=8195
+,PVT_Scale=8196
+,target_pos1=9497
+,target_pos2=9498
+,target_pos3=9499
+,target_pos4=9500
+,target_pos5=9501
+,target_move_time=9502
+,target_accel_time=9503
+,target_scurve_time=9504
+,MyInit_Flag=9505};
+enum globalParray {_globalParray_=-1
+,PVT_Time=8197
+,PVT_Pos=8297
+,PVT_Vel=8897};
 enum csglobalQ {_csglobalQ_=-1};
 enum csglobalQarray {_csglobalQarray_=-1};
 enum ptrM {_ptrM_=-1};
@@ -268,15 +284,23 @@ enum ptrMarray {_ptrMarray_=-1};
 // end of #ifdef _EnumMode_
 #else
 // ***** Standard default mode *****
-#define target_pos1 8192
-#define target_pos2 8193
-#define target_pos3 8194
-#define target_pos4 8195
-#define target_pos5 8196
-#define target_move_time 8197
-#define target_accel_time 8198
-#define target_scurve_time 8199
-#define MyInit_Flag 8200
+#define PVT_BufferSize 8192
+#define PVT_WriteIdx 8193
+#define PVT_ReadIdx 8194
+#define PVT_Count 8195
+#define PVT_Scale 8196
+#define PVT_Time 8197
+#define PVT_Pos 8297
+#define PVT_Vel 8897
+#define target_pos1 9497
+#define target_pos2 9498
+#define target_pos3 9499
+#define target_pos4 9500
+#define target_pos5 9501
+#define target_move_time 9502
+#define target_accel_time 9503
+#define target_scurve_time 9504
+#define MyInit_Flag 9505
 #endif
 #endif
 #endif //_PP_PROJ_H_
