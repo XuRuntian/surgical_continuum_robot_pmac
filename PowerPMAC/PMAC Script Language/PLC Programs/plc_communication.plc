@@ -56,7 +56,7 @@ if (P123 == 1) {
     // 示例: if (target_pos1 > 963200 || target_pos1 < 55000) { ...处理越界... }
 
     // 运行程序 1，执行运动
-    cmd"&1 b1 r" 
+    cmd "#1 j=%d #2 j=%d #3 j=%d #4 j=%d #5 j=%d", target_pos1, target_pos2, target_pos3, target_pos4, target_pos5
     
     // 自动复位触发位，等待 Python 端发送下一次运动指令
     P123 = 0;    
