@@ -21080,6 +21080,38 @@
 				<Unit name="local:ps1.Unit">User-determined</Unit>
 				</Parameter>
 				</ParameterSection>
+				<ParameterSection>
+				<Name name="local:ps1">IsNewData</Name>
+				<Description name="local:ps1.Desc">global(P) IsNewData</Description>
+				<Parameter ParameterId="76050" type="std:LREAL">
+				<Attributes channel="input" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:in">INPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				<Parameter ParameterId="76054" type="std:LREAL">
+				<Attributes channel="output" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:out">OUTPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				</ParameterSection>
+				<ParameterSection>
+				<Name name="local:ps1">base</Name>
+				<Description name="local:ps1.Desc">global(P) base</Description>
+				<Parameter ParameterId="76058" type="std:LREAL">
+				<Attributes channel="input" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:in">INPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				<Parameter ParameterId="76062" type="std:LREAL">
+				<Attributes channel="output" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:out">OUTPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				</ParameterSection>
 			</ParameterSection>
 			<ParameterSection>
 			<Name name="local:ps1">CSGlobal(Q)Variables</Name>

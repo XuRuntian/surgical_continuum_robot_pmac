@@ -65,3 +65,5 @@
 65	Global	target_accel_time	9503	1
 66	Global	target_scurve_time	9504	1
 67	Global	MyInit_Flag	9505	1
+68	Global	IsNewData	9506	1
+69	Global	base	9507	1
