@@ -1,0 +1,66 @@
+open plc 3
+local trigger_cmd;
+local current_val;
+local old_max_dac;
+// 根据你的手册，这里设定一个阈值（建议先通过终端查询正常运行时的 IqMeas/IqCmd）
+local torque_threshold = 2000; 
+
+call ModbusCodec.Decode(420); 
+trigger_cmd = P1001;
+
+if (trigger_cmd > 0 && Homing_State == 0) {
+    Homing_State = 1;
+    Homing_Done = 0;
+    Sys.ModbusServerBuffer[420] = 0;
+}
+
+// ==========================================
+// 硬挡块回零状态机
+// ==========================================
+
+// 步骤 1：准备阶段 - 降低力矩限值保护机械
+if (Homing_State == 1) {
+    cmd "#5j/";                    // 使能电机
+    old_max_dac = Motor[5].MaxDac; // 备份最大输出限值
+    Motor[5].MaxDac = 4000;        // 临时限制最大扭矩输出，防止撞断直线单元
+    Homing_Timer = Sys.Time;
+    Homing_State = 2;
+}
+
+// 步骤 2：开始低速寻址
+if (Homing_State == 2) {
+    if (Sys.Time - Homing_Timer > 0.2) {
+        cmd "#5j-";                // 以慢速向负方向寻找挡块 (可通过 I522 设置速度)
+        Homing_State = 3;
+    }
+}
+
+// 步骤 3：电流监控阶段
+if (Homing_State == 3) {
+    // 自动选择监控对象：如果 IqMeas 有值则用实测值，否则用指令值
+    if (Motor[5].IqMeas != 0) {
+        current_val = abs(Motor[5].IqMeas);
+    } else {
+        current_val = abs(Motor[5].IqCmd);
+    }
+
+    // 如果电流超过阈值，说明撞到了硬挡块
+    if (current_val > torque_threshold) {
+        cmd "#5k";                // 立即停止
+        Homing_Timer = Sys.Time;
+        Homing_State = 4;
+    }
+}
+
+// 步骤 4：设零并恢复环境
+if (Homing_State == 4) {
+    if (Sys.Time - Homing_Timer > 0.5) {
+        cmd "#5hmz";              // 就地设为 0 点
+        Motor[5].MaxDac = old_max_dac; // 恢复正常的输出限值
+        Homing_Done = 1;
+        Homing_State = 0;
+    }
+}
+
+call ModbusCodec.Encode(Homing_Done, 64);
+close

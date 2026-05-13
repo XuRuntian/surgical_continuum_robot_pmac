@@ -80,3 +80,8 @@ global target_scurve_time = 50// S型曲线平滑时间
 global MyInit_Flag = 0
 global IsNewData = 0
 global base = 0
+
+// 回零专用
+global Homing_State = 0;   // 回零状态机步骤
+global Homing_Done = 0;    // 回零完成标志位 (1=完成)
+global Homing_Timer = 0;   // 状态机延时计时器
