@@ -61,8 +61,8 @@ Motor[2].JogTs = 30
 Motor[3].JogTs = 30
 Motor[4].JogTs = 30
 // 直线单元限制
-Motor[5].JogTa = 20
-Motor[5].JogSpeed = 200
+Motor[5].JogTa = 40
+Motor[5].JogSpeed = 500
 
 
 // 
@@ -85,3 +85,10 @@ global base = 0
 global Homing_State = 0;   // 回零状态机步骤
 global Homing_Done = 0;    // 回零完成标志位 (1=完成)
 global Homing_Timer = 0;   // 状态机延时计时器
+global max_length = 30000000; //导轨全长按照编码器计数
+global Last_Act_Pos; 
+global Last_Iq_Cmd;
+global threshold_iqcmd = -210;
+global fe_max = 6000;
+global Homing_Stop_Reason = 0;
+global error  = 0;

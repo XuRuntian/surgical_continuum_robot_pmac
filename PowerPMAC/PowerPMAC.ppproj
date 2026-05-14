@@ -8,7 +8,7 @@
     <RootNamespace>PowerPMAC</RootNamespace>
     <AssemblyName>Power Pmac Project Template</AssemblyName>
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
-    <IPAddress>no device</IPAddress>
+    <IPAddress>192.168.0.200</IPAddress>
     <TelnetPassword>deltatau</TelnetPassword>
     <TelnetPort>22</TelnetPort>
     <TelnetUser>root</TelnetUser>
@@ -95,6 +95,10 @@
     <Content Include="PMAC Script Language\PLC Programs\plc_communication.plc">
       <SubType>Content</SubType>
       <DisplayOrder>1</DisplayOrder>
+    </Content>
+    <Content Include="PMAC Script Language\PLC Programs\plc_homing.plc">
+      <SubType>Content</SubType>
+      <DisplayOrder>2</DisplayOrder>
     </Content>
     <Content Include="System\EtherCAT\11.ecatslave">
       <SubType>Content</SubType>

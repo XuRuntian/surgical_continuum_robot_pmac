@@ -67,3 +67,13 @@
 67	Global	MyInit_Flag	9505	1
 68	Global	IsNewData	9506	1
 69	Global	base	9507	1
+70	Global	Homing_State	9508	1
+71	Global	Homing_Done	9509	1
+72	Global	Homing_Timer	9510	1
+73	Global	max_length	9511	1
+74	Global	Last_Act_Pos	9512	1
+75	Global	Last_Iq_Cmd	9513	1
+76	Global	threshold_iqcmd	9514	1
+77	Global	fe_max	9515	1
+78	Global	Homing_Stop_Reason	9516	1
+79	Global	error	9517	1

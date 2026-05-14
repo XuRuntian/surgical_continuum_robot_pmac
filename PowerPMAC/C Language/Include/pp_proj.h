@@ -43,6 +43,16 @@ enum ptrMarray {_ptrMarray_=-1};
 #define	MyInit_Flag	pshm->P[9505]
 #define	IsNewData	pshm->P[9506]
 #define	base	pshm->P[9507]
+#define	Homing_State	pshm->P[9508]
+#define	Homing_Done	pshm->P[9509]
+#define	Homing_Timer	pshm->P[9510]
+#define	max_length	pshm->P[9511]
+#define	Last_Act_Pos	pshm->P[9512]
+#define	Last_Iq_Cmd	pshm->P[9513]
+#define	threshold_iqcmd	pshm->P[9514]
+#define	fe_max	pshm->P[9515]
+#define	Homing_Stop_Reason	pshm->P[9516]
+#define	error	pshm->P[9517]
 #ifndef _PP_PROJ_HDR_
   void SetEnumGlobalVar(enum globalP var, double data)
   {
@@ -169,7 +179,17 @@ enum globalP {_globalP_=-1
 ,target_scurve_time=9504
 ,MyInit_Flag=9505
 ,IsNewData=9506
-,base=9507};
+,base=9507
+,Homing_State=9508
+,Homing_Done=9509
+,Homing_Timer=9510
+,max_length=9511
+,Last_Act_Pos=9512
+,Last_Iq_Cmd=9513
+,threshold_iqcmd=9514
+,fe_max=9515
+,Homing_Stop_Reason=9516
+,error=9517};
 enum globalParray {_globalParray_=-1
 ,PVT_Time=8197
 ,PVT_Pos=8297
@@ -307,6 +327,16 @@ enum ptrMarray {_ptrMarray_=-1};
 #define MyInit_Flag 9505
 #define IsNewData 9506
 #define base 9507
+#define Homing_State 9508
+#define Homing_Done 9509
+#define Homing_Timer 9510
+#define max_length 9511
+#define Last_Act_Pos 9512
+#define Last_Iq_Cmd 9513
+#define threshold_iqcmd 9514
+#define fe_max 9515
+#define Homing_Stop_Reason 9516
+#define error 9517
 #endif
 #endif
 #endif //_PP_PROJ_H_

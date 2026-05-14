@@ -41,3 +41,7 @@
 41	SUBPROGMotorSafetyCheck	safe_min	7	1
 42	SUBPROGMotorSafetyCheck	max_limit	8	1
 43	SUBPROGMotorSafetyCheck	safe_max	9	1
+44	SUBPROGMotorSafetyCheck	command_code	0	1
+45	SUBPROGMotorSafetyCheck	current_iq	1	1
+46	SUBPROGMotorSafetyCheck	pos_diff	2	1
+47	SUBPROGMotorSafetyCheck	old_max_dac	3	1

@@ -21112,6 +21112,166 @@
 				<Unit name="local:ps1.Unit">User-determined</Unit>
 				</Parameter>
 				</ParameterSection>
+				<ParameterSection>
+				<Name name="local:ps1">Homing_State</Name>
+				<Description name="local:ps1.Desc">global(P) Homing_State</Description>
+				<Parameter ParameterId="76066" type="std:LREAL">
+				<Attributes channel="input" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:in">INPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				<Parameter ParameterId="76070" type="std:LREAL">
+				<Attributes channel="output" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:out">OUTPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				</ParameterSection>
+				<ParameterSection>
+				<Name name="local:ps1">Homing_Done</Name>
+				<Description name="local:ps1.Desc">global(P) Homing_Done</Description>
+				<Parameter ParameterId="76074" type="std:LREAL">
+				<Attributes channel="input" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:in">INPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				<Parameter ParameterId="76078" type="std:LREAL">
+				<Attributes channel="output" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:out">OUTPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				</ParameterSection>
+				<ParameterSection>
+				<Name name="local:ps1">Homing_Timer</Name>
+				<Description name="local:ps1.Desc">global(P) Homing_Timer</Description>
+				<Parameter ParameterId="76082" type="std:LREAL">
+				<Attributes channel="input" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:in">INPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				<Parameter ParameterId="76086" type="std:LREAL">
+				<Attributes channel="output" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:out">OUTPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				</ParameterSection>
+				<ParameterSection>
+				<Name name="local:ps1">max_length</Name>
+				<Description name="local:ps1.Desc">global(P) max_length</Description>
+				<Parameter ParameterId="76090" type="std:LREAL">
+				<Attributes channel="input" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:in">INPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				<Parameter ParameterId="76094" type="std:LREAL">
+				<Attributes channel="output" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:out">OUTPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				</ParameterSection>
+				<ParameterSection>
+				<Name name="local:ps1">Last_Act_Pos</Name>
+				<Description name="local:ps1.Desc">global(P) Last_Act_Pos</Description>
+				<Parameter ParameterId="76098" type="std:LREAL">
+				<Attributes channel="input" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:in">INPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				<Parameter ParameterId="76102" type="std:LREAL">
+				<Attributes channel="output" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:out">OUTPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				</ParameterSection>
+				<ParameterSection>
+				<Name name="local:ps1">Last_Iq_Cmd</Name>
+				<Description name="local:ps1.Desc">global(P) Last_Iq_Cmd</Description>
+				<Parameter ParameterId="76106" type="std:LREAL">
+				<Attributes channel="input" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:in">INPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				<Parameter ParameterId="76110" type="std:LREAL">
+				<Attributes channel="output" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:out">OUTPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				</ParameterSection>
+				<ParameterSection>
+				<Name name="local:ps1">threshold_iqcmd</Name>
+				<Description name="local:ps1.Desc">global(P) threshold_iqcmd</Description>
+				<Parameter ParameterId="76114" type="std:LREAL">
+				<Attributes channel="input" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:in">INPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				<Parameter ParameterId="76118" type="std:LREAL">
+				<Attributes channel="output" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:out">OUTPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				</ParameterSection>
+				<ParameterSection>
+				<Name name="local:ps1">fe_max</Name>
+				<Description name="local:ps1.Desc">global(P) fe_max</Description>
+				<Parameter ParameterId="76122" type="std:LREAL">
+				<Attributes channel="input" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:in">INPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				<Parameter ParameterId="76126" type="std:LREAL">
+				<Attributes channel="output" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:out">OUTPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				</ParameterSection>
+				<ParameterSection>
+				<Name name="local:ps1">Homing_Stop_Reason</Name>
+				<Description name="local:ps1.Desc">global(P) Homing_Stop_Reason</Description>
+				<Parameter ParameterId="76130" type="std:LREAL">
+				<Attributes channel="input" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:in">INPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				<Parameter ParameterId="76134" type="std:LREAL">
+				<Attributes channel="output" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:out">OUTPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				</ParameterSection>
+				<ParameterSection>
+				<Name name="local:ps1">error</Name>
+				<Description name="local:ps1.Desc">global(P) error</Description>
+				<Parameter ParameterId="76138" type="std:LREAL">
+				<Attributes channel="input" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:in">INPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				<Parameter ParameterId="76142" type="std:LREAL">
+				<Attributes channel="output" download="true" functional="false" offlineaccess="readwrite" onlineaccess="readwrite" driverSpecific="1"/>
+				<Default>0</Default>
+				<Name name="local:out">OUTPUT</Name>
+				<Unit name="local:ps1.Unit">User-determined</Unit>
+				</Parameter>
+				</ParameterSection>
 			</ParameterSection>
 			<ParameterSection>
 			<Name name="local:ps1">CSGlobal(Q)Variables</Name>
