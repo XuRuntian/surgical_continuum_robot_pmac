@@ -61,8 +61,8 @@ Motor[2].JogTs = 30
 Motor[3].JogTs = 30
 Motor[4].JogTs = 30
 // 直线单元限制
-Motor[5].JogTa = 40
-Motor[5].JogSpeed = 500
+Motor[5].JogTa = 20
+Motor[5].JogSpeed = 300
 
 
 // 

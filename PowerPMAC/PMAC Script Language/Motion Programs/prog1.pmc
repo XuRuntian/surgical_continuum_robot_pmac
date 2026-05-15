@@ -11,7 +11,14 @@ local p_inc1, p_inc2, p_inc3, p_inc4, p_inc5;
 local last_p1, last_p2, last_p3, last_p4, last_p5; // 新增：记录上一次的目标点
 local r_base; 
 local run_state = 0; // 0: 蓄水期, 1: 放水期
+PVT_WriteIdx = 0;
+PVT_ReadIdx = 0;
+PVT_Count = 0;
+run_state = 0;
 
+// 顺手把 PLC 的触发信号强行按死，防止旧信号作祟
+Sys.ModbusServerBuffer[400] = 0;
+Sys.ModbusServerBuffer[401] = 0;
 abs
 linear
 inc
