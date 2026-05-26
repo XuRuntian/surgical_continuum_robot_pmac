@@ -1,0 +1,56 @@
+open plc 2
+// ==========================================
+// [新增/恢复]: 将电机当前真实物理位置反馈给上位机
+// Python 读取地址 10，对应 PMAC Buffer 20
+// ==========================================
+call ModbusCodec.Encode(Motor[1].Pos, 20);
+call ModbusCodec.Encode(Motor[2].Pos, 24);
+call ModbusCodec.Encode(Motor[3].Pos, 28);
+call ModbusCodec.Encode(Motor[4].Pos, 32);
+call ModbusCodec.Encode(Motor[5].Pos, 36);
+
+// ==========================================
+// 接收流式 PVT 轨迹
+// ==========================================
+// 1. 读取触发位：Python 地址 200 -> PMAC Buffer 400
+call ModbusCodec.Decode(400); 
+IsNewData = P1001;
+
+if (IsNewData > 0) {
+    // 每次收到新数据，P102 计数加 1 (用于监控流水线状态)
+    P102 = P102 + 1;
+    
+    base = PVT_WriteIdx * 6;
+
+    // 2. 读取时间：Python 地址 40 -> PMAC Buffer 80
+    call ModbusCodec.Decode(80);
+    PVT_Time(PVT_WriteIdx) = P1001 / PVT_Scale;
+
+    // 3. 读取 5 轴位置：Python 地址 0 -> PMAC Buffer 0 开始
+    call ModbusCodec.Decode(0);  PVT_Pos(base + 1) = P1001 ;
+    call ModbusCodec.Decode(4);  PVT_Pos(base + 2) = P1001 ;
+    call ModbusCodec.Decode(8);  PVT_Pos(base + 3) = P1001 ;
+    call ModbusCodec.Decode(12); PVT_Pos(base + 4) = P1001 ;
+    call ModbusCodec.Decode(16); PVT_Pos(base + 5) = P1001 ;
+
+    // 4. 读取 5 轴速度：Python 地址 50 -> PMAC Buffer 100 开始
+    call ModbusCodec.Decode(100); PVT_Vel(base + 1) = P1001 / PVT_Scale;
+	call ModbusCodec.Decode(104); PVT_Vel(base + 2) = P1001 / PVT_Scale;
+	call ModbusCodec.Decode(108); PVT_Vel(base + 3) = P1001 / PVT_Scale;
+	call ModbusCodec.Decode(112); PVT_Vel(base + 4) = P1001 / PVT_Scale;
+	call ModbusCodec.Decode(116); PVT_Vel(base + 5) = P1001 / PVT_Scale;
+
+    // 5. 推进指针与水位计算
+    PVT_WriteIdx++;
+    if (PVT_WriteIdx >= PVT_BufferSize) { PVT_WriteIdx = 0; }
+    
+    PVT_Count = PVT_WriteIdx - PVT_ReadIdx;
+    if (PVT_Count < 0) { PVT_Count = PVT_Count + PVT_BufferSize; }
+
+    // 6. 清除触发位，等待 Python 发送下一帧 (清除 Buffer 400~403)
+    Sys.ModbusServerBuffer[400] = 0;
+    Sys.ModbusServerBuffer[401] = 0;
+    Sys.ModbusServerBuffer[402] = 0;
+    Sys.ModbusServerBuffer[403] = 0;
+}
+close

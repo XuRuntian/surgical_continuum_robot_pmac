@@ -1,0 +1,22 @@
+open plc 1 // 限位
+
+// 1. 提取前人积累的电机物理安全极限
+local pos_min1 = 55000;     // 电机 1 最小位置 [cite: 5, 6]
+local pos_max1 = 963200;    // 电机 1 最大位置 [cite: 6]
+local pos_min2 = 0;         // 电机 2 最小位置 [cite: 6]
+local pos_max2 = 131072;    // 电机 2 最大位置 (pow(2,17)) [cite: 6]
+local pos_min5 = -600000;        
+local pos_max5 = 600000;    
+local min_limit = -600000;
+local safe_min  = -610000; // 稍微往回退一点
+    
+local max_limit = 600000;
+local safe_max  = 610000;
+//call MotorSafetyCheck(1, Motor[1].Pos, min_limit, max_limit, safe_min, safe_max);
+//call MotorSafetyCheck(2, Motor[2].Pos, 0, 131072, 1000, 130000); // 电机2的独立参数
+//call MotorSafetyCheck(3, Motor[3].Pos, min_limit, max_limit, safe_min, safe_max);
+//call MotorSafetyCheck(4, Motor[4].Pos, min_limit, max_limit, safe_min, safe_max);
+call MotorSafetyCheck(5, Motor[5].Pos, min_limit, max_limit, safe_min, safe_max);
+
+
+close

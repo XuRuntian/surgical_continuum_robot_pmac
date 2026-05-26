@@ -8,6 +8,8 @@
     <RootNamespace>PowerPMAC</RootNamespace>
     <AssemblyName>Power Pmac Project Template</AssemblyName>
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+    <IPAddress>192.168.0.200</IPAddress>
+    <TelnetPassword>deltatau</TelnetPassword>
     <TelnetPort>22</TelnetPort>
     <TelnetUser>root</TelnetUser>
     <FTPPassword>ftp</FTPPassword>
@@ -35,7 +37,7 @@
     <CpuAffinityBgcplcTask>0</CpuAffinityBgcplcTask>
     <EtherCatStackType>1</EtherCatStackType>
     <RealtimeRoutinesBuildFlag>0</RealtimeRoutinesBuildFlag>
-    <TemplateVersion>3.3</TemplateVersion>
+    <TemplateVersion>3.1</TemplateVersion>
     <ProjppRunAtOption>No</ProjppRunAtOption>
     <DownloadCSoruce>No</DownloadCSoruce>
     <EncryptionOption>Do Not Encrypt Any File</EncryptionOption>
@@ -204,7 +206,6 @@
     <Folder Include="System" />
     <Folder Include="System\Hardware" />
     <Folder Include="System\CPU" />
-    <None Include="System\Coordinate Systems\Coordinate Systems.cssetup" />
     <None Include="System\CPU\System.cpusetup" />
     <Folder Include="System\Motors" />
     <Folder Include="System\Coordinate Systems" />
