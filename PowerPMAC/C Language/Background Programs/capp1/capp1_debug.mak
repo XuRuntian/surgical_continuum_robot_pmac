@@ -295,11 +295,14 @@ LIBOPENERDIR=/usr/local/dtlibs/libopener
 export ARCH
 export CROSS_COMPILE
 
+
+
 CFLAGS =  -mhard-float -funsigned-char --sysroot=$(ROOTFS_DIR) \
 -I$(RTPMACINCLUDEDIR) -I$(LIBPPMACINCLUDEDIR) -I$(LIBOPENERDIR) -I$(XENOMAI_INC_DIR) -I$(XENOMAI_INC_DIR)/posix  -I$(LIBMATHDIR) \
 -D_GNU_SOURCE -D_REENTRANT -D__XENO__ $(EXTRA_DEFINES) -DOPENER_SUPPORT_64BIT_DATATYPES
 
 DTDEBUG = -g3
+
 
 ifneq ($(PMAC_ARCH),i386hv-usermode)
 ifneq ($(PMAC_ARCH),i386hv)
@@ -414,21 +417,28 @@ $(WRAPS)
 RM = rm -f
 SRCS = \
 capp1.c
-OBJS = $(SRCS:.c=.o)
-PROG = "../../../Bin/Debug/capp1.out"
+OBJS = $(patsubst %.c,%.o,$(filter %.c,$(SRCS)))
+PROG = ../../../Bin/Debug/capp1.out
+SRCS_LEVEL_0 = 
+OBJS_LEVEL_0 = $(SRCS_LEVEL_0:.c.gpg=.o_enc_0)
+OBJS_ENCRYPTED = $(OBJS_LEVEL_0)
 
 # now comes a meta-rule for compiling any "C" source file.
-$(PROG): $(OBJS)
-	$(LD) -o $(PROG) $(OBJS) $(LDFLAGS) $(CUSTOMLDFLAGS)
+$(PROG): $(OBJS) $(OBJS_ENCRYPTED)
+	$(LD) -o $(PROG) $(OBJS) $(OBJS_ENCRYPTED) $(LDFLAGS) $(CUSTOMLDFLAGS)
+	if [ -d ../../../Bin/DebugExp/ ]; then cp $(PROG) ../../../Bin/DebugExp/; fi
 
 %.o: %.c clean
 	$(CC) $(CFLAGS) $(CUSTOMCFLAGS) $(DTDEBUG) -c $< -o $@
 
+%.o_enc_0: %.c.gpg clean
+	@gpg --homedir /home/dtuser/ --batch --yes --decrypt --passphrase $(pWSLKqAWYdajxMFA) $< 2>/dev/null | $(CC) $(CFLAGS) $(CUSTOMCFLAGS) $(DTDEBUG) -c -o $@ -xc -
+
 bclean:
-	$(RM) $(PROG) $(OBJS) *.log
+	$(RM) "$(PROG)" $(OBJS) $(OBJS_ENCRYPTED) *.log
 
 clean:
-	$(RM) $(PROG) $(OBJS)
+	$(RM) "$(PROG)" $(OBJS) $(OBJS_ENCRYPTED)
 
 depend:
 	$(RM) ../../../Bin/Debug/dependency.lst

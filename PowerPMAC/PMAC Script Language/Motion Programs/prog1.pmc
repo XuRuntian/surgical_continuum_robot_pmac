@@ -11,6 +11,11 @@ local p_inc1, p_inc2, p_inc3, p_inc4, p_inc5;
 local last_p1, last_p2, last_p3, last_p4, last_p5; // 新增：记录上一次的目标点
 local r_base; 
 local run_state = 0; // 0: 蓄水期, 1: 放水期
+
+// --- 新增：用于轴 5 (B轴) 钳位保护的局部变量 ---
+local v5;
+local p_inc5_raw;
+
 PVT_WriteIdx = 0;
 PVT_ReadIdx = 0;
 PVT_Count = 0;
@@ -35,7 +40,7 @@ while (1) {
     if (PVT_Count < 0) { PVT_Count = PVT_Count + PVT_BufferSize; }
 
     // ==========================================
-    // 状态 0：蓄水缓冲 (攒够 3 个点再发车)
+    // 状态 0：蓄水缓冲 (攒够 10 个点再发车)
     // ==========================================
     if (run_state == 0) {
         if (PVT_Count >= 10) {
@@ -64,23 +69,44 @@ while (1) {
             if (target_t <= 5) { target_t = 10; } 
             if (target_t > 500) { target_t = 500; } 
 
+            // ==========================================
             // 【核心修复】：纯数学计算目标差值，切断物理误差反馈！
+            // ==========================================
             p_inc1 = PVT_Pos(r_base + 1) - last_p1;
             p_inc2 = PVT_Pos(r_base + 2) - last_p2;
             p_inc3 = PVT_Pos(r_base + 3) - last_p3;
             p_inc4 = PVT_Pos(r_base + 4) - last_p4;
-            p_inc5 = PVT_Pos(r_base + 5) - last_p5;
+
+            // --- 新增：轴 5 (B轴) 位置步进量 (Step) 钳位 ---
+            p_inc5_raw = PVT_Pos(r_base + 5) - last_p5;
+            if (p_inc5_raw > Axis5_MaxStep) { 
+                p_inc5 = Axis5_MaxStep; 
+            } else if (p_inc5_raw < -Axis5_MaxStep) { 
+                p_inc5 = -Axis5_MaxStep; 
+            } else { 
+                p_inc5 = p_inc5_raw; 
+            }
+
+            // --- 新增：轴 5 (B轴) 速度 (Velocity) 钳位 ---
+            v5 = PVT_Vel(r_base + 5);
+            if (v5 > Axis5_MaxVel) { 
+                v5 = Axis5_MaxVel; 
+            } else if (v5 < -Axis5_MaxVel) { 
+                v5 = -Axis5_MaxVel; 
+            }
 
             // 更新最后目标点为当前点，为下一个循环做准备
             last_p1 = PVT_Pos(r_base + 1);
             last_p2 = PVT_Pos(r_base + 2);
             last_p3 = PVT_Pos(r_base + 3);
             last_p4 = PVT_Pos(r_base + 4);
-            last_p5 = PVT_Pos(r_base + 5);
+            
+            // 【重要】轴 5 的参考点必须加上钳位后的增量，防止积分漂移导致后续轨迹全错
+            last_p5 = last_p5 + p_inc5;
 
-            // 执行相对 PVT 插补
+            // 执行相对 PVT 插补 (轴 5 写入钳位后的位置增量 p_inc5 和速度 v5)
             PVT (target_t)
-            X (p_inc1):(PVT_Vel(r_base + 1)) Y (p_inc2):(PVT_Vel(r_base + 2)) Z (p_inc3):(PVT_Vel(r_base + 3)) A (p_inc4):(PVT_Vel(r_base + 4)) B (p_inc5):(PVT_Vel(r_base + 5))
+            X (p_inc1):(PVT_Vel(r_base + 1)) Y (p_inc2):(PVT_Vel(r_base + 2)) Z (p_inc3):(PVT_Vel(r_base + 3)) A (p_inc4):(PVT_Vel(r_base + 4)) B (p_inc5):(v5)
 
             PVT_ReadIdx++;
             if (PVT_ReadIdx >= PVT_BufferSize) { PVT_ReadIdx = 0; }

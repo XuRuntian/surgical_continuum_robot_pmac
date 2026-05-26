@@ -1,0 +1,49 @@
+// ==========================================
+// PVT 轨迹系统：全局初始化与复位子程序
+// 调用示例: call SystemInit.Reset();
+// ==========================================
+open subprog SystemInit
+
+sub: Reset()
+    // 1. 禁用 PLC，防止在复位过程中被后台逻辑干扰
+    cmd "disable plc 1,2,3";
+	call wait(1);
+    // 2. 终止坐标系 1 的运动，并切断 1-5 轴电机动力 (Kill)
+    cmd "&1A";
+	call wait(1);
+
+    cmd "#1..5k";
+	call wait(1);
+
+    // 3. 复位 PVT 环形缓冲区指针与计数器
+    PVT_WriteIdx = 0;
+    PVT_ReadIdx = 0;
+    PVT_Count = 0;
+
+    // 4. 清理 Modbus 触发位和通讯标志位
+    Sys.ModbusServerBuffer[400] = 0;
+    Sys.ModbusServerBuffer[401] = 0;
+    Sys.ModbusServerBuffer[402] = 0;
+    Sys.ModbusServerBuffer[403] = 0;
+    Sys.ModbusServerBuffer[440] = 0;
+    Sys.ModbusServerBuffer[441] = 0;
+    Sys.ModbusServerBuffer[442] = 0;
+    Sys.ModbusServerBuffer[443] = 0;
+
+    // 5. 让 1-5 轴电机重新闭环上电 (Jog /)
+    cmd "#1..5j/";
+	call wait(1);
+
+    // 6. 将电机重新映射到坐标系 1 (CS1) 的运动学轴
+    cmd "&1 #1->X #2->Y #3->Z #4->A #5->B";
+	call wait(1);
+
+    // 7. 启动坐标系 1 中的 1 号运动程序 (Run prog 1)
+    cmd "&1 b1r";
+
+    // 8. 重新使能 PLC，恢复系统后台监控与通讯
+    cmd "enable plc 1,2,3";
+    
+return
+
+close
