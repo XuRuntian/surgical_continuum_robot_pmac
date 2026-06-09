@@ -1,74 +1,72 @@
-open plc 2 
-// ---------------------------------------------------------
-// [第一部分]: 初始化逻辑 - 仅在 PLC 启动后的第一个周期执行
-// ---------------------------------------------------------
-if (MyInit_Flag == 0) {
-    // 1. 强制清除运动触发信号，防止开机即动
-    P123 = 0; 
-    
-    // 2. 将目标位置初始化为当前物理位置，消除“数值残余”导致的位移
-    target_pos1 = Motor[1].Pos;
-    target_pos2 = Motor[2].Pos;
-    target_pos3 = Motor[3].Pos;
-    target_pos4 = Motor[4].Pos;
-    target_pos5 = Motor[5].Pos;
-    
-    // 3. 标记初始化完成
-    MyInit_Flag = 1; 
-}
+open plc 2
+local next_idx; // 新增：用于计算和预判下一个写入位置
+local base;
 
-// ---------------------------------------------------------
-// [第二部分]: 从 Modbus 缓冲区读取上位机指令
-// ---------------------------------------------------------
-
-// 1. 解码 32 位位置指令 (地址 0-19)
-call ModbusCodec.Decode(0);  P101 = P1001;
-call ModbusCodec.Decode(4);  P102 = P1001;
-call ModbusCodec.Decode(8);  P103 = P1001;
-call ModbusCodec.Decode(12); P104 = P1001;
-call ModbusCodec.Decode(16); P105 = P1001;
-
-// 2. 解码动态速度/时间参数
-call ModbusCodec.Decode(40); target_move_time = P1001;  
-call ModbusCodec.Decode(44); target_accel_time = P1001;
-call ModbusCodec.Decode(48); target_scurve_time = P1001;
-
-// 3. 解码触发信号 (地址 200)
-call ModbusCodec.Decode(200); P123 = P1001;
-
-// ---------------------------------------------------------
-// [第三部分 & 第四部分合并]: 仅在触发时进行指令赋值、校验与运动
-// ---------------------------------------------------------
-if (P123 == 1) {
-    // 只有在收到上位机明确的触发信号时，才允许从 Modbus 覆盖目标位置
-    target_pos1 = P101;
-    target_pos2 = P102;
-    target_pos3 = P103;
-    target_pos4 = P104;
-    target_pos5 = P105;
-
-    // 安全保护：如果上位机发送了非法时间参数，强制修正为安全默认值
-    if (target_move_time <= 0) { target_move_time = 500; }
-    if (target_accel_time <= 0 || target_accel_time > target_move_time) { target_accel_time = 100; }
-    if (target_scurve_time <= 0 || target_scurve_time > target_accel_time) { target_scurve_time = 50; }
-
-    // TODO: 在此处根据 plc_safety.plc 的逻辑添加位置限位校验
-    // 示例: if (target_pos1 > 963200 || target_pos1 < 55000) { ...处理越界... }
-
-    // 运行程序 1，执行运动
-    cmd "#1 j=%d #2 j=%d #3 j=%d #4 j=%d #5 j=%d", target_pos1, target_pos2, target_pos3, target_pos4, target_pos5
-    
-    // 自动复位触发位，等待 Python 端发送下一次运动指令
-    P123 = 0;    
-}
-
-// ---------------------------------------------------------
-// [第五部分]: 状态回传 (反馈实际位置给上位机)
-// ---------------------------------------------------------
+// ==========================================
+// [新增/恢复]: 将电机当前真实物理位置反馈给上位机
+// Python 读取地址 10，对应 PMAC Buffer 20
+// ==========================================
 call ModbusCodec.Encode(Motor[1].Pos, 20);
 call ModbusCodec.Encode(Motor[2].Pos, 24);
 call ModbusCodec.Encode(Motor[3].Pos, 28);
 call ModbusCodec.Encode(Motor[4].Pos, 32);
 call ModbusCodec.Encode(Motor[5].Pos, 36);
 
+// ==========================================
+// 接收流式 PVT 轨迹
+// ==========================================
+// 1. 读取触发位：Python 地址 200 -> PMAC Buffer 400
+call ModbusCodec.Decode(400); 
+IsNewData = P1001;
+
+if (IsNewData > 0) {
+    // 每次收到新数据，P102 计数加 1 (用于监控流水线状态)
+    P102 = P102 + 1;
+
+    // --- 新增：防溢出环形缓冲区逻辑 ---
+    next_idx = PVT_WriteIdx + 1;
+    if (next_idx >= PVT_BufferSize) { next_idx = 0; }
+    
+    if (next_idx == PVT_ReadIdx) {
+        // 【溢出保护】缓冲区已满：丢弃当前点，置位溢出标志，清理 Modbus 触发位
+        PVT_Overflow = 1;
+        Sys.ModbusServerBuffer[400] = 0;
+        Sys.ModbusServerBuffer[401] = 0;
+        Sys.ModbusServerBuffer[402] = 0;
+        Sys.ModbusServerBuffer[403] = 0;
+    } else {
+        // 【正常流转】缓冲区未满：写入数据
+        base = PVT_WriteIdx * 6;
+
+        // 2. 读取时间：Python 地址 40 -> PMAC Buffer 80
+        call ModbusCodec.Decode(80);
+        PVT_Time(PVT_WriteIdx) = P1001 / PVT_Scale;
+
+        // 3. 读取 5 轴位置：Python 地址 0 -> PMAC Buffer 0 开始
+        call ModbusCodec.Decode(0);  PVT_Pos(base + 1) = P1001 ;
+        call ModbusCodec.Decode(4);  PVT_Pos(base + 2) = P1001 ;
+        call ModbusCodec.Decode(8);  PVT_Pos(base + 3) = P1001 ;
+        call ModbusCodec.Decode(12); PVT_Pos(base + 4) = P1001 ;
+        call ModbusCodec.Decode(16); PVT_Pos(base + 5) = P1001 ;
+
+        // 4. 读取 5 轴速度：Python 地址 50 -> PMAC Buffer 100 开始
+        call ModbusCodec.Decode(100); PVT_Vel(base + 1) = P1001 / PVT_Scale;
+        call ModbusCodec.Decode(104); PVT_Vel(base + 2) = P1001 / PVT_Scale;
+        call ModbusCodec.Decode(108); PVT_Vel(base + 3) = P1001 / PVT_Scale;
+        call ModbusCodec.Decode(112); PVT_Vel(base + 4) = P1001 / PVT_Scale;
+        call ModbusCodec.Decode(116); PVT_Vel(base + 5) = P1001 / PVT_Scale;
+
+        // 5. 推进指针与水位计算
+        PVT_WriteIdx = next_idx; // 安全推进写指针
+        
+        PVT_Count = PVT_WriteIdx - PVT_ReadIdx;
+        if (PVT_Count < 0) { PVT_Count = PVT_Count + PVT_BufferSize; }
+
+        // 6. 清除触发位，等待 Python 发送下一帧 (清除 Buffer 400~403)
+        Sys.ModbusServerBuffer[400] = 0;
+        Sys.ModbusServerBuffer[401] = 0;
+        Sys.ModbusServerBuffer[402] = 0;
+        Sys.ModbusServerBuffer[403] = 0;
+    }
+}
 close
