@@ -1,49 +1,55 @@
-// ==========================================
-// PVT 轨迹系统：全局初始化与复位子程序
-// 调用示例: call SystemInit.Reset();
-// ==========================================
+// Protocol v2 lifecycle. Reset leaves PVT stopped until Python captures feedback.
 open subprog SystemInit
 
-sub: Reset()
-    // 1. 禁用 PLC，防止在复位过程中被后台逻辑干扰
-    cmd "disable plc 1,2,3";
-	call wait(1);
-    // 2. 终止坐标系 1 的运动，并切断 1-5 轴电机动力 (Kill)
+sub: StopPVT()
+    PVT_Ready = 0;
+    PVT_HasData = 0;
     cmd "&1A";
-	call wait(1);
-
-    cmd "#1..5k";
-	call wait(1);
-
-    // 3. 复位 PVT 环形缓冲区指针与计数器
     PVT_WriteIdx = 0;
     PVT_ReadIdx = 0;
     PVT_Count = 0;
+return
 
-    // 4. 清理 Modbus 触发位和通讯标志位
-    Sys.ModbusServerBuffer[400] = 0;
-    Sys.ModbusServerBuffer[401] = 0;
-    Sys.ModbusServerBuffer[402] = 0;
-    Sys.ModbusServerBuffer[403] = 0;
-    Sys.ModbusServerBuffer[440] = 0;
-    Sys.ModbusServerBuffer[441] = 0;
-    Sys.ModbusServerBuffer[442] = 0;
-    Sys.ModbusServerBuffer[443] = 0;
+sub: RestoreHomingLimit()
+    if (Homing_LimitActive == 1) {
+        Motor[5].MaxDac = Homing_SavedMaxDac;
+        Homing_LimitActive = 0;
+    }
+return
 
-    // 5. 让 1-5 轴电机重新闭环上电 (Jog /)
+sub: Reset()
+    // Preserve PLC 1's existing enable state and its calibration settings.
+    cmd "disable plc 2,3";
+    Reset_Done = 0;
+    call ModbusCodec.Encode(0, 432);
+    call wait(1);
+    call SystemInit.StopPVT();
+    cmd "#1..5k";
+    call wait(1);
+    call SystemInit.RestoreHomingLimit();
+    Homing_State = 0;
+    Homing_Done = 0;
+    Homing_Stop_Reason = 0;
+    PVT_Ack = 0;
+    PVT_Overflow = 0;
+    PVT_Faulted = 0;
+    Feedback_Ack = 0;
+    call ModbusCodec.Encode(0, 400);
+    call ModbusCodec.Encode(0, 404);
+    call ModbusCodec.Encode(0, 408);
+    call ModbusCodec.Encode(0, 412);
+    call ModbusCodec.Encode(0, 416);
+    call ModbusCodec.Encode(0, 420);
+    call ModbusCodec.Encode(2, 424);
+    call ModbusCodec.Encode(0, 428);
+    call ModbusCodec.Encode(0, 440);
+    call ModbusCodec.Encode(Axis5_MaxStep, 436);
     cmd "#1..5j/";
-	call wait(1);
-
-    // 6. 将电机重新映射到坐标系 1 (CS1) 的运动学轴
+    call wait(1);
     cmd "&1 #1->X #2->Y #3->Z #4->A #5->B";
-	call wait(1);
-
-    // 7. 启动坐标系 1 中的 1 号运动程序 (Run prog 1)
-    cmd "&1 b1r";
-
-    // 8. 重新使能 PLC，恢复系统后台监控与通讯
-    cmd "enable plc 1,2,3";
-    
+    cmd "enable plc 2,3";
+    Reset_Done = 1;
+    call ModbusCodec.Encode(Reset_Done, 432);
 return
 
 close

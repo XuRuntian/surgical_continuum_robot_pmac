@@ -102,3 +102,16 @@ global threshold_iqcmd = -210;
 global fe_max = 6000;
 global Homing_Stop_Reason = 0;
 global error  = 0;
+
+// Protocol v2: byte-buffer mailboxes; see docs/pmac_protocol_v2.md in driver.
+global PVT_Ack = 0;
+global PVT_Ready = 0;
+global PVT_HasData = 0;
+global PVT_LastRxTime = 0;
+global PVT_WatchdogSeconds = 0.5;
+global Feedback_Ack = 0;
+global Reset_Done = 0;
+global Homing_SavedMaxDac = 0;
+global Homing_LimitActive = 0;
+global Homing_LastClientTime = 0;
+global Homing_WatchdogSeconds = 1.0;

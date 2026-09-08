@@ -1,72 +1,90 @@
+// Mailbox v2. Buffer indices are BYTES, Python addresses are 16-bit registers.
 open plc 2
-local next_idx; // 新增：用于计算和预判下一个写入位置
+local next_idx;
 local base;
+local request_id;
+local feedback_id;
+local frame_time;
 
-// ==========================================
-// [新增/恢复]: 将电机当前真实物理位置反馈给上位机
-// Python 读取地址 10，对应 PMAC Buffer 20
-// ==========================================
-call ModbusCodec.Encode(Motor[1].Pos, 20);
-call ModbusCodec.Encode(Motor[2].Pos, 24);
-call ModbusCodec.Encode(Motor[3].Pos, 28);
-call ModbusCodec.Encode(Motor[4].Pos, 32);
-call ModbusCodec.Encode(Motor[5].Pos, 36);
+// Stop a disconnected producer, including already-planned coordinate motion.
+if (PVT_Ready == 1 && PVT_HasData == 1) {
+    if (Sys.Time - PVT_LastRxTime > PVT_WatchdogSeconds) {
+        PVT_Faulted = 3;
+        call SystemInit.StopPVT();
+    }
+}
+if (PVT_Ready == 1 && Coord[1].ProgRunning == 0) {
+    PVT_Faulted = 4;
+    call SystemInit.StopPVT();
+}
 
-// ==========================================
-// 接收流式 PVT 轨迹
-// ==========================================
-// 1. 读取触发位：Python 地址 200 -> PMAC Buffer 400
-call ModbusCodec.Decode(400); 
-IsNewData = P1001;
-
-if (IsNewData > 0) {
-    // 每次收到新数据，P102 计数加 1 (用于监控流水线状态)
-    P102 = P102 + 1;
-
-    // --- 新增：防溢出环形缓冲区逻辑 ---
+call ModbusCodec.Decode(400);
+request_id = P1001;
+if (request_id > 0) {
     next_idx = PVT_WriteIdx + 1;
     if (next_idx >= PVT_BufferSize) { next_idx = 0; }
-    
-    if (next_idx == PVT_ReadIdx) {
-        // 【溢出保护】缓冲区已满：丢弃当前点，置位溢出标志，清理 Modbus 触发位
+    call ModbusCodec.Decode(80);
+    frame_time = P1001 / PVT_Scale;
+
+    if (PVT_Faulted != 0 || PVT_Ready != 1 || Homing_State != 0) {
+        if (PVT_Faulted == 0) { PVT_Faulted = 2; }
+    } else if (next_idx == PVT_ReadIdx) {
         PVT_Overflow = 1;
-        Sys.ModbusServerBuffer[400] = 0;
-        Sys.ModbusServerBuffer[401] = 0;
-        Sys.ModbusServerBuffer[402] = 0;
-        Sys.ModbusServerBuffer[403] = 0;
+        PVT_Faulted = 1;
+    } else if (frame_time <= 5 || frame_time > 500 || request_id > 255 || request_id == PVT_Ack) {
+        PVT_Faulted = 5;
     } else {
-        // 【正常流转】缓冲区未满：写入数据
         base = PVT_WriteIdx * 6;
-
-        // 2. 读取时间：Python 地址 40 -> PMAC Buffer 80
-        call ModbusCodec.Decode(80);
-        PVT_Time(PVT_WriteIdx) = P1001 / PVT_Scale;
-
-        // 3. 读取 5 轴位置：Python 地址 0 -> PMAC Buffer 0 开始
-        call ModbusCodec.Decode(0);  PVT_Pos(base + 1) = P1001 ;
-        call ModbusCodec.Decode(4);  PVT_Pos(base + 2) = P1001 ;
-        call ModbusCodec.Decode(8);  PVT_Pos(base + 3) = P1001 ;
-        call ModbusCodec.Decode(12); PVT_Pos(base + 4) = P1001 ;
-        call ModbusCodec.Decode(16); PVT_Pos(base + 5) = P1001 ;
-
-        // 4. 读取 5 轴速度：Python 地址 50 -> PMAC Buffer 100 开始
+        PVT_Time(PVT_WriteIdx) = frame_time;
+        call ModbusCodec.Decode(0);  PVT_Pos(base + 1) = P1001;
+        call ModbusCodec.Decode(4);  PVT_Pos(base + 2) = P1001;
+        call ModbusCodec.Decode(8);  PVT_Pos(base + 3) = P1001;
+        call ModbusCodec.Decode(12); PVT_Pos(base + 4) = P1001;
+        call ModbusCodec.Decode(16); PVT_Pos(base + 5) = P1001;
         call ModbusCodec.Decode(100); PVT_Vel(base + 1) = P1001 / PVT_Scale;
         call ModbusCodec.Decode(104); PVT_Vel(base + 2) = P1001 / PVT_Scale;
         call ModbusCodec.Decode(108); PVT_Vel(base + 3) = P1001 / PVT_Scale;
         call ModbusCodec.Decode(112); PVT_Vel(base + 4) = P1001 / PVT_Scale;
         call ModbusCodec.Decode(116); PVT_Vel(base + 5) = P1001 / PVT_Scale;
-
-        // 5. 推进指针与水位计算
-        PVT_WriteIdx = next_idx; // 安全推进写指针
-        
-        PVT_Count = PVT_WriteIdx - PVT_ReadIdx;
-        if (PVT_Count < 0) { PVT_Count = PVT_Count + PVT_BufferSize; }
-
-        // 6. 清除触发位，等待 Python 发送下一帧 (清除 Buffer 400~403)
-        Sys.ModbusServerBuffer[400] = 0;
-        Sys.ModbusServerBuffer[401] = 0;
-        Sys.ModbusServerBuffer[402] = 0;
-        Sys.ModbusServerBuffer[403] = 0;
+        // Publish only after every field is stored. Ack means queued, not executed.
+        PVT_WriteIdx = next_idx;
+        PVT_Ack = request_id;
+        PVT_LastRxTime = Sys.Time;
+        PVT_HasData = 1;
+        P102 = P102 + 1;
     }
+    if (PVT_Faulted != 0) { call SystemInit.StopPVT(); }
+}
+
+PVT_Count = PVT_WriteIdx - PVT_ReadIdx;
+if (PVT_Count < 0) { PVT_Count = PVT_Count + PVT_BufferSize; }
+call ModbusCodec.Encode(PVT_Ack, 404);
+call ModbusCodec.Encode(PVT_Faulted, 408);
+call ModbusCodec.Encode(PVT_Count, 412);
+call ModbusCodec.Encode(2, 424);
+call ModbusCodec.Encode(PVT_Ready, 428);
+call ModbusCodec.Encode(Axis5_MaxStep, 436);
+// Clear request LAST: the host can now inspect the result and reuse the slot.
+if (request_id > 0) { call ModbusCodec.Encode(0, 400); }
+
+// Fresh, frozen feedback snapshot. Never periodically overwrite an acknowledged
+// snapshot; the host reads it before issuing the next request.
+call ModbusCodec.Decode(416);
+feedback_id = P1001;
+if (feedback_id > 0 && feedback_id <= 255) {
+    call ModbusCodec.Encode(Motor[1].Pos, 20);
+    call ModbusCodec.Encode(Motor[2].Pos, 24);
+    call ModbusCodec.Encode(Motor[3].Pos, 28);
+    call ModbusCodec.Encode(Motor[4].Pos, 32);
+    call ModbusCodec.Encode(Motor[5].Pos, 36);
+    call ModbusCodec.Encode(Homing_State, 444);
+    call ModbusCodec.Encode(Homing_Stop_Reason, 448);
+    call ModbusCodec.Encode(Motor[5].IqCmd, 452);
+    call ModbusCodec.Encode(abs(Motor[5].DesPos - Motor[5].ActPos), 456);
+    call ModbusCodec.Encode(Homing_Done, 460);
+    Homing_LastClientTime = Sys.Time;
+    Feedback_Ack = feedback_id;
+    call ModbusCodec.Encode(Feedback_Ack, 420);
+    call ModbusCodec.Encode(0, 416);
 }
 close
