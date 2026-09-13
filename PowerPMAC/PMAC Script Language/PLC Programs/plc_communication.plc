@@ -1,7 +1,7 @@
 // Mailbox v2. Buffer indices are BYTES, Python addresses are 16-bit registers.
 open plc 2
 local next_idx;
-local base;
+local pvt_base;
 local request_id;
 local feedback_id;
 local frame_time;
@@ -34,18 +34,18 @@ if (request_id > 0) {
     } else if (frame_time <= 5 || frame_time > 500 || request_id > 255 || request_id == PVT_Ack) {
         PVT_Faulted = 5;
     } else {
-        base = PVT_WriteIdx * 6;
+        pvt_base = PVT_WriteIdx * 6;
         PVT_Time(PVT_WriteIdx) = frame_time;
-        call ModbusCodec.Decode(0);  PVT_Pos(base + 1) = P1001;
-        call ModbusCodec.Decode(4);  PVT_Pos(base + 2) = P1001;
-        call ModbusCodec.Decode(8);  PVT_Pos(base + 3) = P1001;
-        call ModbusCodec.Decode(12); PVT_Pos(base + 4) = P1001;
-        call ModbusCodec.Decode(16); PVT_Pos(base + 5) = P1001;
-        call ModbusCodec.Decode(100); PVT_Vel(base + 1) = P1001 / PVT_Scale;
-        call ModbusCodec.Decode(104); PVT_Vel(base + 2) = P1001 / PVT_Scale;
-        call ModbusCodec.Decode(108); PVT_Vel(base + 3) = P1001 / PVT_Scale;
-        call ModbusCodec.Decode(112); PVT_Vel(base + 4) = P1001 / PVT_Scale;
-        call ModbusCodec.Decode(116); PVT_Vel(base + 5) = P1001 / PVT_Scale;
+        call ModbusCodec.Decode(0);  PVT_Pos(pvt_base + 1) = P1001;
+        call ModbusCodec.Decode(4);  PVT_Pos(pvt_base + 2) = P1001;
+        call ModbusCodec.Decode(8);  PVT_Pos(pvt_base + 3) = P1001;
+        call ModbusCodec.Decode(12); PVT_Pos(pvt_base + 4) = P1001;
+        call ModbusCodec.Decode(16); PVT_Pos(pvt_base + 5) = P1001;
+        call ModbusCodec.Decode(100); PVT_Vel(pvt_base + 1) = P1001 / PVT_Scale;
+        call ModbusCodec.Decode(104); PVT_Vel(pvt_base + 2) = P1001 / PVT_Scale;
+        call ModbusCodec.Decode(108); PVT_Vel(pvt_base + 3) = P1001 / PVT_Scale;
+        call ModbusCodec.Decode(112); PVT_Vel(pvt_base + 4) = P1001 / PVT_Scale;
+        call ModbusCodec.Decode(116); PVT_Vel(pvt_base + 5) = P1001 / PVT_Scale;
         // Publish only after every field is stored. Ack means queued, not executed.
         PVT_WriteIdx = next_idx;
         PVT_Ack = request_id;

@@ -72,9 +72,9 @@ Motor[5].MaxSpeed = 32
 Motor[5].InvAmax = 10
 Motor[5].InvDmax = 10
 Motor[5].InvJmax = 50
-Motor[5].JogSpeed = 100
-Motor[5].JogTa = 50
-Motor[5].JogTs = 30
+Motor[5].JogSpeed=100
+Motor[5].JogTa=30
+Motor[5].JogTs=10
 // 
 global target_pos1
 global target_pos2

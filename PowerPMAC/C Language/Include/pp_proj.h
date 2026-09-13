@@ -32,27 +32,42 @@ enum ptrMarray {_ptrMarray_=-1};
 #define	PVT_Time(i)	pshm->P[(8197+i)%MAX_P]
 #define	PVT_Pos(i)	pshm->P[(8297+i)%MAX_P]
 #define	PVT_Vel(i)	pshm->P[(8897+i)%MAX_P]
-#define	target_pos1	pshm->P[9497]
-#define	target_pos2	pshm->P[9498]
-#define	target_pos3	pshm->P[9499]
-#define	target_pos4	pshm->P[9500]
-#define	target_pos5	pshm->P[9501]
-#define	target_move_time	pshm->P[9502]
-#define	target_accel_time	pshm->P[9503]
-#define	target_scurve_time	pshm->P[9504]
-#define	MyInit_Flag	pshm->P[9505]
-#define	IsNewData	pshm->P[9506]
-#define	base	pshm->P[9507]
-#define	Homing_State	pshm->P[9508]
-#define	Homing_Done	pshm->P[9509]
-#define	Homing_Timer	pshm->P[9510]
-#define	max_length	pshm->P[9511]
-#define	Last_Act_Pos	pshm->P[9512]
-#define	Last_Iq_Cmd	pshm->P[9513]
-#define	threshold_iqcmd	pshm->P[9514]
-#define	fe_max	pshm->P[9515]
-#define	Homing_Stop_Reason	pshm->P[9516]
-#define	error	pshm->P[9517]
+#define	Axis5_MaxVel	pshm->P[9497]
+#define	Axis5_MaxStep	pshm->P[9498]
+#define	PVT_Overflow	pshm->P[9499]
+#define	PVT_Faulted	pshm->P[9500]
+#define	target_pos1	pshm->P[9501]
+#define	target_pos2	pshm->P[9502]
+#define	target_pos3	pshm->P[9503]
+#define	target_pos4	pshm->P[9504]
+#define	target_pos5	pshm->P[9505]
+#define	target_move_time	pshm->P[9506]
+#define	target_accel_time	pshm->P[9507]
+#define	target_scurve_time	pshm->P[9508]
+#define	MyInit_Flag	pshm->P[9509]
+#define	IsNewData	pshm->P[9510]
+#define	base	pshm->P[9511]
+#define	Homing_State	pshm->P[9512]
+#define	Homing_Done	pshm->P[9513]
+#define	Homing_Timer	pshm->P[9514]
+#define	max_length	pshm->P[9515]
+#define	Last_Act_Pos	pshm->P[9516]
+#define	Last_Iq_Cmd	pshm->P[9517]
+#define	threshold_iqcmd	pshm->P[9518]
+#define	fe_max	pshm->P[9519]
+#define	Homing_Stop_Reason	pshm->P[9520]
+#define	error	pshm->P[9521]
+#define	PVT_Ack	pshm->P[9522]
+#define	PVT_Ready	pshm->P[9523]
+#define	PVT_HasData	pshm->P[9524]
+#define	PVT_LastRxTime	pshm->P[9525]
+#define	PVT_WatchdogSeconds	pshm->P[9526]
+#define	Feedback_Ack	pshm->P[9527]
+#define	Reset_Done	pshm->P[9528]
+#define	Homing_SavedMaxDac	pshm->P[9529]
+#define	Homing_LimitActive	pshm->P[9530]
+#define	Homing_LastClientTime	pshm->P[9531]
+#define	Homing_WatchdogSeconds	pshm->P[9532]
 #ifndef _PP_PROJ_HDR_
   void SetEnumGlobalVar(enum globalP var, double data)
   {
@@ -169,27 +184,42 @@ enum globalP {_globalP_=-1
 ,PVT_ReadIdx=8194
 ,PVT_Count=8195
 ,PVT_Scale=8196
-,target_pos1=9497
-,target_pos2=9498
-,target_pos3=9499
-,target_pos4=9500
-,target_pos5=9501
-,target_move_time=9502
-,target_accel_time=9503
-,target_scurve_time=9504
-,MyInit_Flag=9505
-,IsNewData=9506
-,base=9507
-,Homing_State=9508
-,Homing_Done=9509
-,Homing_Timer=9510
-,max_length=9511
-,Last_Act_Pos=9512
-,Last_Iq_Cmd=9513
-,threshold_iqcmd=9514
-,fe_max=9515
-,Homing_Stop_Reason=9516
-,error=9517};
+,Axis5_MaxVel=9497
+,Axis5_MaxStep=9498
+,PVT_Overflow=9499
+,PVT_Faulted=9500
+,target_pos1=9501
+,target_pos2=9502
+,target_pos3=9503
+,target_pos4=9504
+,target_pos5=9505
+,target_move_time=9506
+,target_accel_time=9507
+,target_scurve_time=9508
+,MyInit_Flag=9509
+,IsNewData=9510
+,base=9511
+,Homing_State=9512
+,Homing_Done=9513
+,Homing_Timer=9514
+,max_length=9515
+,Last_Act_Pos=9516
+,Last_Iq_Cmd=9517
+,threshold_iqcmd=9518
+,fe_max=9519
+,Homing_Stop_Reason=9520
+,error=9521
+,PVT_Ack=9522
+,PVT_Ready=9523
+,PVT_HasData=9524
+,PVT_LastRxTime=9525
+,PVT_WatchdogSeconds=9526
+,Feedback_Ack=9527
+,Reset_Done=9528
+,Homing_SavedMaxDac=9529
+,Homing_LimitActive=9530
+,Homing_LastClientTime=9531
+,Homing_WatchdogSeconds=9532};
 enum globalParray {_globalParray_=-1
 ,PVT_Time=8197
 ,PVT_Pos=8297
@@ -316,27 +346,42 @@ enum ptrMarray {_ptrMarray_=-1};
 #define PVT_Time 8197
 #define PVT_Pos 8297
 #define PVT_Vel 8897
-#define target_pos1 9497
-#define target_pos2 9498
-#define target_pos3 9499
-#define target_pos4 9500
-#define target_pos5 9501
-#define target_move_time 9502
-#define target_accel_time 9503
-#define target_scurve_time 9504
-#define MyInit_Flag 9505
-#define IsNewData 9506
-#define base 9507
-#define Homing_State 9508
-#define Homing_Done 9509
-#define Homing_Timer 9510
-#define max_length 9511
-#define Last_Act_Pos 9512
-#define Last_Iq_Cmd 9513
-#define threshold_iqcmd 9514
-#define fe_max 9515
-#define Homing_Stop_Reason 9516
-#define error 9517
+#define Axis5_MaxVel 9497
+#define Axis5_MaxStep 9498
+#define PVT_Overflow 9499
+#define PVT_Faulted 9500
+#define target_pos1 9501
+#define target_pos2 9502
+#define target_pos3 9503
+#define target_pos4 9504
+#define target_pos5 9505
+#define target_move_time 9506
+#define target_accel_time 9507
+#define target_scurve_time 9508
+#define MyInit_Flag 9509
+#define IsNewData 9510
+#define base 9511
+#define Homing_State 9512
+#define Homing_Done 9513
+#define Homing_Timer 9514
+#define max_length 9515
+#define Last_Act_Pos 9516
+#define Last_Iq_Cmd 9517
+#define threshold_iqcmd 9518
+#define fe_max 9519
+#define Homing_Stop_Reason 9520
+#define error 9521
+#define PVT_Ack 9522
+#define PVT_Ready 9523
+#define PVT_HasData 9524
+#define PVT_LastRxTime 9525
+#define PVT_WatchdogSeconds 9526
+#define Feedback_Ack 9527
+#define Reset_Done 9528
+#define Homing_SavedMaxDac 9529
+#define Homing_LimitActive 9530
+#define Homing_LastClientTime 9531
+#define Homing_WatchdogSeconds 9532
 #endif
 #endif
 #endif //_PP_PROJ_H_
