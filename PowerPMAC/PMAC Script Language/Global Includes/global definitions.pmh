@@ -40,9 +40,9 @@ Motor[2].InvDmax=0.01
 Motor[3].InvDmax=0.01
 Motor[4].InvDmax=0.01
 //最大加加速度设置ms^3/ct
-Motor[1].InvDmax=0.05
-Motor[2].InvDmax=0.05
-Motor[3].InvDmax=0.05
+Motor[1].InvJmax=0.05
+Motor[2].InvJmax=0.05
+Motor[3].InvJmax=0.05
 Motor[4].InvJmax=0.05
 
 Motor[1].JogSpeed = 3500
