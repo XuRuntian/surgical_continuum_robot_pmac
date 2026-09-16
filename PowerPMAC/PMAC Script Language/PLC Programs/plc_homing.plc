@@ -1,76 +1,70 @@
+// Commands: 1=start, 2=stop for confirmation, 3=set zero, 4=cancel.
+// State: 0=idle, 1=arming, 2=jogging, 3=stopped, 4=waiting for zero.
+// Snapshot/status encoding is owned by PLC 2 (Buffer 444,448,452,456,460).
 open plc 3
 local command_code;
-local current_iq;
 local pos_diff;
-local old_max_dac;
 
-// ==========================================
-// 1. 读取 Python 下发的指令 (从地址 440 解码)
-// 指令定义：1=启动回零, 2=强制停止, 3=确认停止并设零, 0=空闲
-// ==========================================
-call ModbusCodec.Decode(440); 
-command_code = P1001; 
+call ModbusCodec.Decode(440);
+command_code = P1001;
 
-// 启动回零指令
 if (command_code == 1 && Homing_State == 0) {
+    call SystemInit.StopPVT();
     Homing_State = 1;
+    Homing_Done = 0;
     Homing_Stop_Reason = 0;
-    
-    cmd "#5j/";                    // 确保使能
-    old_max_dac = Motor[5].MaxDac; 
-    Motor[5].MaxDac = 4000;        // 安全限流保护硬件
+    Homing_SavedMaxDac = Motor[5].MaxDac;
+    Homing_LimitActive = 1;
+    if (Motor[5].MaxDac > 4000) { Motor[5].MaxDac = 4000; }
+    cmd "#5j/";
     Homing_Timer = Sys.Time;
+    Homing_LastClientTime = Sys.Time;
 }
 
-// 延迟 0.2s 后发运动指令
-if (Homing_State == 1 && Sys.Time - Homing_Timer > 0.2) {
-    cmd "#5j-";                    
-    Homing_State = 2;              // 进入监控状态
-    Homing_Timer = Sys.Time;
-}
-
-// ==========================================
-// 2. 实时监控 (只做物理底线的硬停车)
-// ==========================================
-if (Homing_State == 2) {
-    current_iq = Motor[5].IqCmd;
-    pos_diff = abs(Motor[5].DesPos - Motor[5].ActPos);
-
-    // 基础保护逻辑（可以设得稍微宽容一点，因为 Python 也会监控）
-    if (pos_diff > 20000) {          // 误差极大 (防飞车)
-        Homing_Stop_Reason = 2; 
-    }
-
-    if (Homing_Stop_Reason > 0) {
-        cmd "#5k";                 // 紧急物理停车
-        Homing_State = 3;          // 状态3：等待 Python 确认
-    }
-}
-
-// ==========================================
-// 3. 响应 Python 的操作指令
-// ==========================================
-// Python 手动/异常中断 (指令 2)
-if (command_code == 2) {
+// Handle stop/cancel before the delayed jog branch, including during arming.
+if (command_code == 2 || command_code == 4) {
+    call SystemInit.StopPVT();
     cmd "#5k";
-    Homing_State = 0;
-    Homing_Stop_Reason = 9;        // 9 代表 Python 强制打断
-    Sys.ModbusServerBuffer[440] = 0; // 清理指令
+    call SystemInit.RestoreHomingLimit();
+    Homing_Done = 0;
+    Homing_Stop_Reason = 9;
+    Homing_State = 3;
+    if (command_code == 4) { Homing_State = 0; }
 }
 
-// Python 确认撞墙，要求设零 (指令 3)
+if (Homing_State == 1 || Homing_State == 2) {
+    pos_diff = abs(Motor[5].DesPos - Motor[5].ActPos);
+    if (pos_diff > 20000) { Homing_Stop_Reason = 2; }
+    if (Sys.Time - Homing_LastClientTime > Homing_WatchdogSeconds) { Homing_Stop_Reason = 8; }
+    if (Homing_Stop_Reason > 0) {
+        cmd "#5k";
+        call SystemInit.RestoreHomingLimit();
+        Homing_State = 3;
+    }
+}
+
+if (Homing_State == 1 && Sys.Time - Homing_Timer > 0.2) {
+    cmd "#5j-";
+    Homing_State = 2;
+}
+
 if (command_code == 3 && Homing_State == 3) {
-    cmd "#5hmz";                   // 就地设零
-    Motor[5].MaxDac = old_max_dac; // 恢复满功率
-    Homing_State = 0;
-    Sys.ModbusServerBuffer[440] = 0; // 清理指令
+    cmd "#5hmz";
+    call SystemInit.RestoreHomingLimit();
+    Homing_Done = 0;
+    Homing_State = 4;
+    Homing_Timer = Sys.Time;
 }
 
-// ==========================================
-// 4. 数据回传 Python (隔位映射，适配 32-bit 浮点/整数)
-// ==========================================
-Sys.ModbusServerBuffer[444] = Homing_State;
-Sys.ModbusServerBuffer[446] = Homing_Stop_Reason;
-Sys.ModbusServerBuffer[448] = current_iq;  
-Sys.ModbusServerBuffer[450] = pos_diff;    
+if (Homing_State == 4 && Sys.Time - Homing_Timer > 0.05) {
+    if (abs(Motor[5].Pos) < 1) {
+        Homing_Done = 1;
+        Homing_State = 0;
+    } else if (Sys.Time - Homing_Timer > 2) {
+        Homing_Stop_Reason = 10;
+        Homing_State = 3;
+    }
+}
+// Consume each command once, including invalid state/command combinations.
+if (command_code != 0) { call ModbusCodec.Encode(0, 440); }
 close

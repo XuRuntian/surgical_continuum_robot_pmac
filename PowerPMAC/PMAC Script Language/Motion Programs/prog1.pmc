@@ -16,6 +16,7 @@ local run_state = 0; // 0: 蓄水期, 1: 放水期
 local v5;
 local p_inc5_raw;
 
+PVT_Ready = 0;
 PVT_WriteIdx = 0;
 PVT_ReadIdx = 0;
 PVT_Count = 0;
@@ -24,6 +25,8 @@ run_state = 0;
 // 顺手把 PLC 的触发信号强行按死，防止旧信号作祟
 Sys.ModbusServerBuffer[400] = 0;
 Sys.ModbusServerBuffer[401] = 0;
+Sys.ModbusServerBuffer[402] = 0;
+Sys.ModbusServerBuffer[403] = 0;
 abs
 linear
 inc
@@ -34,6 +37,8 @@ last_p2 = Motor[2].Pos;
 last_p3 = Motor[3].Pos;
 last_p4 = Motor[4].Pos;
 last_p5 = Motor[5].Pos;
+
+PVT_Ready = 1;
 
 while (1) {
     PVT_Count = PVT_WriteIdx - PVT_ReadIdx;

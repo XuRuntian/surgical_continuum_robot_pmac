@@ -40,9 +40,9 @@ Motor[2].InvDmax=0.01
 Motor[3].InvDmax=0.01
 Motor[4].InvDmax=0.01
 //最大加加速度设置ms^3/ct
-Motor[1].InvDmax=0.05
-Motor[2].InvDmax=0.05
-Motor[3].InvDmax=0.05
+Motor[1].InvJmax=0.05
+Motor[2].InvJmax=0.05
+Motor[3].InvJmax=0.05
 Motor[4].InvJmax=0.05
 
 Motor[1].JogSpeed = 3500
@@ -72,9 +72,9 @@ Motor[5].MaxSpeed = 32
 Motor[5].InvAmax = 10
 Motor[5].InvDmax = 10
 Motor[5].InvJmax = 50
-Motor[5].JogSpeed = 100
-Motor[5].JogTa = 50
-Motor[5].JogTs = 30
+Motor[5].JogSpeed=100
+Motor[5].JogTa=30
+Motor[5].JogTs=10
 // 
 global target_pos1
 global target_pos2
@@ -102,3 +102,16 @@ global threshold_iqcmd = -210;
 global fe_max = 6000;
 global Homing_Stop_Reason = 0;
 global error  = 0;
+
+// Protocol v2: byte-buffer mailboxes; see docs/pmac_protocol_v2.md in driver.
+global PVT_Ack = 0;
+global PVT_Ready = 0;
+global PVT_HasData = 0;
+global PVT_LastRxTime = 0;
+global PVT_WatchdogSeconds = 0.5;
+global Feedback_Ack = 0;
+global Reset_Done = 0;
+global Homing_SavedMaxDac = 0;
+global Homing_LimitActive = 0;
+global Homing_LastClientTime = 0;
+global Homing_WatchdogSeconds = 1.0;

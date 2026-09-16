@@ -1,4 +1,5 @@
 open plc 4  
-    call SystemInit.Reset();
+    call SystemInit.Reset();	
     disable plc 4; // 执行完复位逻辑后，立刻自我关闭，变成单次触发
+	
 close
